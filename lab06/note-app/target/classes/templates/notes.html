@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Aplikacja do Notatek</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 900px; margin: 30px auto; padding: 25px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1, h2 { color: #2c3e50; text-align: center; margin-bottom: 25px; }
+        form { margin-bottom: 40px; padding: 25px; background-color: #fdfdfd; border-radius: 8px; border: 1px solid #e9ecef; }
+        form div { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input[type="text"], textarea, select {
+            width: calc(100% - 24px); /* Account for padding and border */
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            outline: none;
+        }
+        textarea { resize: vertical; min-height: 100px; }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover { background-color: #0056b3; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+
+        .note-list { margin-top: 40px; }
+        .note-item {
+            border: 1px solid #dcdcdc;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #fdfdfd;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .note-item h3 { margin-top: 0; margin-bottom: 5px; color: #34495e; font-size: 20px; }
+        .note-item p { margin: 0; line-height: 1.6; }
+        .note-info { display: flex; justify-content: space-between; font-size: 14px; color: #7f8c8d; }
+        .note-info .importance { font-weight: bold; }
+        .URGENT { color: #e74c3c; } /* Red */
+        .STANDARD { color: #f39c12; } /* Orange */
+        .OPTIONAL { color: #27ae60; } /* Green */
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Dodaj Nową Notatkę</h1>
+
+    <form th:action="@{/add}" th:object="${note}" method="post">
+        <div>
+            <label for="title">Tytuł:</label>
+            <input type="text" id="title" th:field="*{title}" required />
+        </div>
+        <div>
+            <label for="content">Treść:</label>
+            <textarea id="content" th:field="*{content}" required></textarea>
+        </div>
+        <div>
+            <label for="importance">Ważność:</label>
+            <select id="importance" th:field="*{importance}">
+                <!-- Iterates over the Importance enum values -->
+                <option th:each="level : ${T(lab6.note_app.model.Importance).values()}"
+                        th:value="${level}"
+                        th:text="${level}">STANDARD</option>
+            </select>
+        </div>
+        <button type="submit">Dodaj Notatkę</button>
+    </form>
+
+    <hr/>
+
+    <h2>Lista Twoich Notatek</h2>
+    <div class="note-list">
+        <p th:if="${notes.isEmpty()}" style="text-align: center; color: #7f8c8d;">Brak notatek do wyświetlenia.</p>
+        <div th:each="n : ${notes}" class="note-item">
+            <h3 th:text="${n.title}">Tytuł notatki</h3>
+            <p th:text="${n.content}">Treść notatki.</p>
+            <div class="note-info">
+                <span class="importance" th:classappend="${n.importance}" th:text="${'Ważność: ' + n.importance}">Ważność: STANDARD</span>
+                <span th:text="${'Data dodania: ' + #temporals.format(n.timestamp, 'yyyy-MM-dd HH:mm:ss')}">Data dodania: 2025-01-01 12:00:00</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
